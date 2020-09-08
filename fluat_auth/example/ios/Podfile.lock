@@ -1,0 +1,22 @@
+PODS:
+  - fluat_auth (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - fluat_auth (from `.symlinks/plugins/fluat_auth/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  fluat_auth:
+    :path: ".symlinks/plugins/fluat_auth/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  fluat_auth: 3b099256903bf00f4c876d99e8350da9b8887458
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+
+PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
+
+COCOAPODS: 1.9.1

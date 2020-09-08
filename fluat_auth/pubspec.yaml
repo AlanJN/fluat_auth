@@ -1,8 +1,8 @@
 name: fluat_auth
 description: aliATAuth-Flutter Plugin.
 version: 0.0.1
-author:AlanJN <lizinan1024@126.com>
-homepage:https://github.com/AlanJN/fluat_auth
+author: AlanJN <lizinan1024@126.com>
+homepage: https://github.com/AlanJN/fluat_auth
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

@@ -6,6 +6,10 @@
 
 [官方文档](https://help.aliyun.com/product/75010.html)
 
+请按照文档中指示 注册应用获取到iOSKey 和 AndroidKey 用于初始化SDK
+
+默认使用者掌握或了解iOS或Android原生开发
+
 ## 功能
 * 一键登录
 * 本机号码校验

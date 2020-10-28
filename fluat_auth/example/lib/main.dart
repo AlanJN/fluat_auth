@@ -7,10 +7,8 @@ import 'package:fluat_auth/fluat.dart' as fluat;
 import 'login_page.dart';
 import 'home_page.dart';
 
-const String ios_key = 'i+7GI/Z0wyy3pa/ezlSsKwMCqhcDlio1zECAl1daiRE0vHPZhPeqRIc1O9Y27VmKuXm4Lsxw4Md'
-    '+AgoWao/Et64KZAwPxwQfBmn5ScYPf1C/caEU5hNv5VclUzO07hxDS53iWGrpD1mm47O3cmcJU8M7V/Vy0OempC/liAKDydlXx78b7YLYMh5IoNOOESUmvYzwyW/T9tBlcieaUum2E1lWemltXRJvBuHuw9OThwjlmKigqHp7Aw==';
-const String android_key =
-    'kStgh7Y/3GyTDsI/zeuPX1VJoFDCbeORMFM56o1QzvA2uoTIZFYInB59NroUU/G/XKMV4Uc67/tIN9mqx6Pji48Rqmwvb4L6CQizlquqGExFbIhS50UQBIF71HddjVn0Lh9+HHLvEOKbxhvSbRw6upqPyIgGmFdcZGaySlE9wpljlTPpzI1iZqnMF2a3hX/1dHKEVY130iqH/cpcT93JYS5i+y5G2Wa7M1Jr5kC7RcaeHhJAiN0VJXZ9hS4e2QUCvWnug1LyNck1VUOoSj4fsHvU9kT9XImi';
+const String ios_key = '';
+const String android_key = '';
 void main() async {
   runApp(MyApp());
 }

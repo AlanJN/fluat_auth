@@ -42,16 +42,10 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('/Users/Alan/Documents/mxhboss')
-            storePassword 'MXH123'
-            keyAlias = 'mxhboss_release'
-            keyPassword 'MXH123'
+
         }
         debug {
-            storeFile file('/Users/Alan/Documents/mxhboss')
-            storePassword 'MXH123'
-            keyAlias = 'mxhboss_release'
-            keyPassword 'MXH123'
+
         }
     }
     buildTypes {

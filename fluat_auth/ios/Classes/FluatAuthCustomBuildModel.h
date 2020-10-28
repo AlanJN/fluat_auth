@@ -12,8 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FluatAuthCustomBuildModel : NSObject
 
-+ (TXCustomModel *)buildCustomUIModel;
-
++ (TXCustomModel *)buildCustomUIModelWith:(NSDictionary *)config;
 @end
 
 NS_ASSUME_NONNULL_END

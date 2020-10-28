@@ -5,7 +5,6 @@
 @implementation FluatAuthPlugin
 
 FlutterMethodChannel *_methodChannel;
-
 const NSString *errCode = @"errCode";
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -25,10 +24,16 @@ const NSString *errCode = @"errCode";
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-		if([@"initAliAuthSDK" isEqualToString:call.method]){
-				[self setAliAuthInfo:call.arguments result:result];
-		} else if([@"aliAuthLogin" isEqualToString:call.method]){
-				[self aliAuthLogin:call.arguments result:result];
+		if ([@"initAliAuthSDK" isEqualToString:call.method]){
+				[self setAliAuthInfo:call result:result];
+		} else if ([@"checkEnvAvailable" isEqualToString:call.method]){
+				[self checkEnvAvailable:call result:result];
+		} else if ([@"showAuthLoginPage" isEqualToString:call.method]){
+				[self showAuthLoginPage:call result:result];
+		} else if ([@"getVerifyToken" isEqualToString:call.method]){
+				[self getVerifyToken:call result:result];
+		} else if ([@"closeAuthPage" isEqualToString:call.method]){
+				[self closeLoginVC];
 		} else {
 				result(FlutterMethodNotImplemented);
 		}
@@ -36,74 +41,114 @@ const NSString *errCode = @"errCode";
 
 #pragma mark - 设置阿里一键登录信息
 
-- (void)setAliAuthInfo:(NSDictionary *)arguments result:(FlutterResult)result{
-		if (!arguments[@"iOS"]) {
+- (void)setAliAuthInfo:(FlutterMethodCall *)call result:(FlutterResult)result{
+	
+		if (!call.arguments[@"inIOS"]) {
 				result(@NO);
 				return;
 		}
-		NSString *secretKey = arguments[@"iOS"];
+		
+		NSString *secretKey = call.arguments[@"iOSSecretKey"];
 		[[TXCommonHandler sharedInstance] setAuthSDKInfo:secretKey complete:^(NSDictionary * _Nonnull resultDic) {
 				if ([PNSCodeSuccess isEqualToString:resultDic[@"resultCode"]]) {
-					
-						//设置成功后 检测终端环境是否支持一键登录流程
-						[[TXCommonHandler sharedInstance] checkEnvAvailableWithAuthType:PNSAuthTypeLoginToken complete:^(NSDictionary * _Nullable resultDic) {
-								if ([PNSCodeSuccess isEqualToString:resultDic[@"resultCode"]]) {
-										[self accelerateLogin:result];
-								}else{
-										result(@(NO));
-								}
-						}];
+						result(@YES);
 				}else{
-//						result([FlutterError errorWithCode:[NSString stringWithFormat:@"%@",resultDic[@"resultCode"]] message:resultDic[@"msg"] details:@""]);
-						result(@(NO));
-						return;
+						result(@NO);
 				}
 		}];
 }
 
-#pragma mark - 预取号
+#pragma mark - 检查当前设备环境
 
-- (void)accelerateLogin:(FlutterResult)result{
-		[[TXCommonHandler sharedInstance] accelerateVerifyWithTimeout:3 complete:^(NSDictionary * _Nonnull resultDic) {
-				if ([PNSCodeSuccess isEqualToString:resultDic[@"resultCode"]]) {
-						result(@(true)) ;
+- (void)checkEnvAvailable:(FlutterMethodCall *)call result:(FlutterResult)result{
+		
+		NSNumber *typeNumber = call.arguments[@"authType"];
+		PNSAuthType authType = PNSAuthTypeLoginToken;
+		if ([typeNumber isEqualToNumber:@1]) {
+				authType = PNSAuthTypeVerifyToken;
+		}
+		
+		BOOL accelerate = (BOOL)call.arguments[@"accelerate"];
+		NSNumber *timeOut = call.arguments[@"timeOut"];
+		
+		[[TXCommonHandler sharedInstance] checkEnvAvailableWithAuthType:authType complete:^(NSDictionary * _Nullable resultDic) {
+				
+				if ([PNSCodeSuccess isEqualToString:[resultDic objectForKey:@"resultCode"]]) {
+						result(@YES);
+						if (accelerate) {
+								if (authType == PNSAuthTypeVerifyToken) {
+										[self accelerateVerify:timeOut.intValue];
+								}else{
+										[self accelerateLogin:timeOut.intValue];
+								}
+						}
 				}else{
-						result(@(NO)) ;
+						result(@NO);
 				}
+				NSDictionary *authResult = @{errCode:resultDic[@"resultCode"]};
+				[_methodChannel invokeMethod:@"fluatCheckEnvEvent" arguments:authResult];
+		}];
+}
+
+
+#pragma mark - 加速获取本机号码校验token
+
+- (void)accelerateVerify:(int)timeOut{
+		[[TXCommonHandler sharedInstance] accelerateVerifyWithTimeout:timeOut complete:^(NSDictionary * _Nonnull resultDic) {
+				NSDictionary *authResult = @{errCode:resultDic[@"resultCode"]};
+				[_methodChannel invokeMethod:@"fluatAccelerateEvent" arguments:authResult];
+		}];
+}
+
+#pragma mark - 加速一键登录授权页弹起
+
+- (void)accelerateLogin:(int)timeOut{
+		[[TXCommonHandler sharedInstance] accelerateLoginPageWithTimeout:timeOut complete:^(NSDictionary * _Nonnull resultDic) {
+				NSDictionary *authResult = @{errCode:resultDic[@"resultCode"]};
+				[_methodChannel invokeMethod:@"fluatAccelerateEvent" arguments:authResult];
 		}];
 }
 
 #pragma mark - 一键登录授权页
 
-- (void)aliAuthLogin:(NSDictionary *)arguments result:(FlutterResult)result{
-		
-		TXCustomModel *model = [FluatAuthCustomBuildModel buildCustomUIModel];
-		
-		UIView *customView = [self moreLoginWayView];
-		model.customViewBlock = ^(UIView * _Nonnull superCustomView) {
-				[superCustomView addSubview:customView];
-		};
-		
-		model.customViewLayoutBlock = ^(CGSize screenSize, CGRect contentViewFrame, CGRect navFrame, CGRect titleBarFrame, CGRect logoFrame, CGRect sloganFrame, CGRect numberFrame, CGRect loginFrame, CGRect changeBtnFrame, CGRect privacyFrame) {
-				CGRect frame = customView.frame;
-				frame.origin.x = (screenSize.width - frame.size.width) * 0.5;
-				frame.origin.y = screenSize.height - frame.size.height - 40-[self getSafeAreaBottom];
-				customView.frame = frame;
-		};
-		
-		
+- (void)showAuthLoginPage:(FlutterMethodCall *)call result:(FlutterResult)result{
+		NSNumber *timeOut = call.arguments[@"timeOut"];
+		NSDictionary *config = call.arguments[@"config"];
+		TXCustomModel *model;
+		if (config) {
+				model = [FluatAuthCustomBuildModel buildCustomUIModelWith:call.arguments[@"config"]];
+		}else{
+				model= nil;
+		}
 		//弹起授权页面
-		[[TXCommonHandler sharedInstance] getLoginTokenWithTimeout:[arguments[@"timeout"]  integerValue] controller:[self getCurrentViewController] model:model complete:^(NSDictionary * _Nonnull resultDic) {
-				if ([PNSCodeLoginControllerPresentSuccess isEqualToString:resultDic[@"resultCode"]]) {
-						NSLog(@"弹起授权页成功");
-				}else if ([PNSCodeLoginControllerClickLoginBtn isEqualToString:resultDic[@"resultCode"]]) {
-						
-				}	else if ([PNSCodeSuccess isEqualToString:resultDic[@"resultCode"]]) {
+		[[TXCommonHandler sharedInstance] getLoginTokenWithTimeout:timeOut.integerValue controller:[self getCurrentViewController] model:model complete:^(NSDictionary * _Nonnull resultDic) {
+				NSMutableDictionary *authResult = [[NSMutableDictionary alloc] initWithDictionary:@{errCode:resultDic[@"resultCode"]}];
+				if ([PNSCodeSuccess isEqualToString:resultDic[@"resultCode"]]) {
 						NSString *token = [resultDic objectForKey:@"token"];
-						[self authLogin:token];
+						[authResult setValue:token forKey:@"token"];
+				}else{
+						[authResult setValue:@"" forKey:@"token"];
 				}
+				[_methodChannel invokeMethod:@"fluatAuthEvent" arguments:authResult];
 		}];
 }
+
+#pragma mark - 获取本机号码校验token
+
+- (void)getVerifyToken:(FlutterMethodCall *)call result:(FlutterResult)result{
+		NSNumber *timeOut = call.arguments[@"timeOut"];
+		[[TXCommonHandler sharedInstance] getVerifyTokenWithTimeout:timeOut.integerValue complete:^(NSDictionary * _Nonnull resultDic) {
+				NSMutableDictionary *authResult = [[NSMutableDictionary alloc] initWithDictionary:@{errCode:[NSNumber numberWithInt:[resultDic[@"resultCode"] intValue]]}];
+				if ([PNSCodeSuccess isEqualToString:resultDic[@"resultCode"]]) {
+						NSString *token = [resultDic objectForKey:@"token"];
+						[authResult setValue:token forKey:@"token"];
+				}else{
+						[authResult setValue:@"" forKey:@"token"];
+				}
+				[_methodChannel invokeMethod:@"fluatAuthEvent" arguments:authResult];
+		}];
+}
+
 
 //获取底部安全区高度
 - (CGFloat)getSafeAreaBottom {
@@ -113,112 +158,26 @@ const NSString *errCode = @"errCode";
 		return 0.0;
 }
 
-#pragma mark - 自定义更多登录方式
-- (UIView *)moreLoginWayView{
-		UIView *contentBackView = [UIView new];
-		NSMutableArray *buttonsArray = [NSMutableArray new];
-		
-		BOOL weChatInstall = [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"weixin://"]];
-		BOOL canAppleLogin = [[UIDevice currentDevice] systemVersion].floatValue > 13.0;
-		UIButton *wechatLoginButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		[wechatLoginButton setImage:[UIImage imageNamed:@"wechat_login_logo"] forState:UIControlStateNormal];
-		wechatLoginButton.adjustsImageWhenHighlighted = NO;
-		[wechatLoginButton addTarget:self action:@selector(weChatLogin:) forControlEvents:UIControlEventTouchUpInside];
-		if (weChatInstall) {
-				wechatLoginButton.frame = CGRectMake(0, 0, 40, 40);
-				[contentBackView addSubview:wechatLoginButton];
-				[buttonsArray addObject:wechatLoginButton];
-		}
-		
-		UIButton *appleLoginButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		[appleLoginButton setImage:[UIImage imageNamed:@"apple_login_logo"] forState:UIControlStateNormal];
-		appleLoginButton.adjustsImageWhenHighlighted = NO;
-		[appleLoginButton addTarget:self action:@selector(appleLogin:) forControlEvents:UIControlEventTouchUpInside];
-		[contentBackView addSubview:appleLoginButton];
-		if (canAppleLogin) {
-				if (weChatInstall) {
-						appleLoginButton.frame = CGRectMake(CGRectGetMaxX(wechatLoginButton.frame)+30,0 , 40, 40);
-				}else{
-						appleLoginButton.frame = CGRectMake(0, 0, 40, 40);
-				}
-				[contentBackView addSubview:appleLoginButton];
-				[buttonsArray addObject:appleLoginButton];
-		}
-		
-		UIButton *accountLoginButton = [UIButton buttonWithType:UIButtonTypeCustom];
-		[accountLoginButton setImage:[UIImage imageNamed:@"account_login_logo"] forState:UIControlStateNormal];
-		accountLoginButton.adjustsImageWhenHighlighted = NO;
-		[accountLoginButton addTarget:self action:@selector(accountLogin:) forControlEvents:UIControlEventTouchUpInside];
-		[contentBackView addSubview:accountLoginButton];
-		if (weChatInstall) {
-				if (canAppleLogin) {
-						accountLoginButton.frame = CGRectMake(CGRectGetMaxX(appleLoginButton.frame)+30,0 , 40, 40);
-				}else{
-						accountLoginButton.frame = CGRectMake(CGRectGetMaxX(wechatLoginButton.frame)+30,0 , 40, 40);
-				}
-		}else{
-				if (canAppleLogin) {
-						accountLoginButton.frame = CGRectMake(CGRectGetMaxX(appleLoginButton.frame)+30,0 , 40, 40);
-				}else{
-						accountLoginButton.frame = CGRectMake(0,0 , 40, 40);
-				}
-		}
-		[contentBackView addSubview:accountLoginButton];
-		[buttonsArray addObject:accountLoginButton];
-		CGFloat contentWidth = (buttonsArray.count*40+(buttonsArray.count-1)*30);
-		contentBackView.frame = CGRectMake(0, 0, contentWidth, 40);
-		
-		return contentBackView;
-}
+#pragma mark - 关闭授权页
 
-#pragma mark - 一键登录
-
-- (void)authLogin:(NSString *)token{
-		NSDictionary *result = @{errCode:@(0),@"authToken":token};
-		[_methodChannel invokeMethod:@"authLoginEvent" arguments:result];
-		//取消授权页
-		[[TXCommonHandler sharedInstance] cancelLoginVCAnimated:YES complete:nil];
-}
-
-#pragma mark - 微信登录
-
-- (void)weChatLogin:(UIButton *)button{
-		NSDictionary *result = @{errCode:@(0)};
-		[_methodChannel invokeMethod:@"weChatLoginEvent" arguments:result];
-}
-
-#pragma mark - 苹果登录
-
-- (void)appleLogin:(UIButton *)button{
-		NSDictionary *result = @{errCode:@(0)};
-		[_methodChannel invokeMethod:@"appleLoginEvent" arguments:result];
-}
-
-#pragma mark - 账号
-
-- (void)accountLogin:(UIButton *)button{
-		NSDictionary *result = @{errCode:@(0)};
-		[_methodChannel invokeMethod:@"accountLoginEvent" arguments:result];
-		//取消授权页
+- (void)closeLoginVC{
 		[[TXCommonHandler sharedInstance] cancelLoginVCAnimated:YES complete:nil];
 }
 
 #pragma mark - 获取当前controller
 
 - (UIViewController *)getCurrentViewController{
-		UIWindow *window = [[UIApplication sharedApplication].delegate window];
-		UIViewController *topViewController = [window rootViewController];
-		while (true) {
-				if (topViewController.presentedViewController) {
-						topViewController = topViewController.presentedViewController;
-				} else if ([topViewController isKindOfClass:[UINavigationController class]] && [(UINavigationController*)topViewController topViewController]) {
-						topViewController = [(UINavigationController *)topViewController topViewController];
-				} else if ([topViewController isKindOfClass:[UITabBarController class]]) {
-						UITabBarController *tab = (UITabBarController *)topViewController;
-						topViewController = tab.selectedViewController;
-				} else {
+		UIWindow *keyWindow;
+		for (UIWindow *window in [UIApplication sharedApplication].windows) {
+				if (window.isKeyWindow) {
+						keyWindow = window;
 						break;
 				}
+		}
+		
+		UIViewController *topViewController = keyWindow.rootViewController;
+		while (topViewController.presentedViewController) {
+				topViewController = topViewController.presentedViewController;
 		}
 		return topViewController;
 }

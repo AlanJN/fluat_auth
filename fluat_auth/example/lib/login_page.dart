@@ -15,29 +15,31 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          RaisedButton(
-              color: Colors.blue,
-              child: Text(
-                '登录',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                widget.loginCallBack();
-              }),
-          RaisedButton(
-              color: Colors.blue,
-              child: Text(
-                '一键登录',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                widget.fastLoginCallBack();
-              }),
-        ],
-      )),
+          child: widget.canFastLogin
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    RaisedButton(
+                        color: Colors.blue,
+                        child: Text(
+                          '登录',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          widget.loginCallBack();
+                        }),
+                    RaisedButton(
+                        color: Colors.blue,
+                        child: Text(
+                          '一键登录',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          widget.fastLoginCallBack();
+                        }),
+                  ],
+                )
+              : Text('检验环境未通过，一键登录不可用')),
     );
   }
 }

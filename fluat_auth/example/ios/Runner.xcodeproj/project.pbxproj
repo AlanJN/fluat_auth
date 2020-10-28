@@ -399,7 +399,13 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.company.bundleid;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Flutter,
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mxhchina.mxhboss;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = mxhbosspro_dev;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -534,7 +540,13 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.company.bundleid;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Flutter,
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mxhchina.mxhboss;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = mxhbosspro_dev;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -564,7 +576,13 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.company.bundleid;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Flutter,
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mxhchina.mxhboss;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = mxhbosspro_dev;
 				TARGETED_DEVICE_FAMILY = 1;

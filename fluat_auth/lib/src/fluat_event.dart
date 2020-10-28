@@ -1,42 +1,29 @@
 typedef BaseAuthEvent _AuthEventInvoker(Map argument);
 
 Map<String, _AuthEventInvoker> _nameAndEventMapper = {
-  "authLoginEvent": (Map argument) => ATAuthLoginEvent.fromMap(argument),
-  "weChatLoginEvent": (Map argument) => WeChatLoginEvent.fromMap(argument),
-  "appleLoginEvent": (Map argument) => AppleLoginEvent.fromMap(argument),
-  "accountLoginEvent": (Map argument) => AccountLoginEvent.fromMap(argument),
-  "authErrorEvent": (Map argument) => ErrorEvent.fromMap(argument),
+  "fluatCheckEnvEvent": (Map argument) => FluatCheckEnvEvent.fromMap(argument),
+  "fluatAccelerateEvent": (Map argument) => FluatAccelerateEvent.fromMap(argument),
+  "fluatAuthEvent": (Map argument) => FluatAuthEvent.fromMap(argument),
 };
 
 class BaseAuthEvent {
-  final int errCode;
-
-  bool get isSuccessful => errCode == 0;
-
+  final String errCode;
   BaseAuthEvent._(this.errCode);
 
   factory BaseAuthEvent.create(String name, Map argument) => _nameAndEventMapper[name](argument);
 }
 
-class ATAuthLoginEvent extends BaseAuthEvent {
-  String token;
-  ATAuthLoginEvent.fromMap(Map map)
-      : token = map["authToken"],
+class FluatCheckEnvEvent extends BaseAuthEvent {
+  FluatCheckEnvEvent.fromMap(Map map) : super._(map["errCode"]);
+}
+
+class FluatAccelerateEvent extends BaseAuthEvent {
+  FluatAccelerateEvent.fromMap(Map map) : super._(map["errCode"]);
+}
+
+class FluatAuthEvent extends BaseAuthEvent {
+  String authToken;
+  FluatAuthEvent.fromMap(Map map)
+      : authToken = map["token"],
         super._(map["errCode"]);
-}
-
-class WeChatLoginEvent extends BaseAuthEvent {
-  WeChatLoginEvent.fromMap(Map map) : super._(map["errCode"]);
-}
-
-class AppleLoginEvent extends BaseAuthEvent {
-  AppleLoginEvent.fromMap(Map map) : super._(map["errCode"]);
-}
-
-class AccountLoginEvent extends BaseAuthEvent {
-  AccountLoginEvent.fromMap(Map map) : super._(map["errCode"]);
-}
-
-class ErrorEvent extends BaseAuthEvent {
-  ErrorEvent.fromMap(Map map) : super._(map["errCode"]);
 }

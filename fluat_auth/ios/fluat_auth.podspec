@@ -18,7 +18,8 @@ A new flutter plugin project.
   s.dependency 'Flutter'
 
   # 阿里一键登录 (v2.10.0)
-  s.vendored_frameworks = 'libs/ATAuthSDK.framework'
+  s.ios.vendored_frameworks = 'libs/ATAuthSDK.framework'
+  s.vendored_frameworks = 'ATAuthSDK.framework'
   # 加载静态资源
   s.resources = ['Assets/*']
 

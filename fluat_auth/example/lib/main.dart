@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:fluat_auth/fluat.dart' as fluat;
+import 'package:fluat_auth/fluat_auth.dart' as fluat;
 
 import 'login_page.dart';
 import 'home_page.dart';

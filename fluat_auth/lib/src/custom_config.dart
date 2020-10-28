@@ -1,4 +1,4 @@
-import '../fluat.dart';
+import '../fluat_auth.dart';
 
 /// 1.此配置类只包含大部分通用配置
 /// 2.某个配置不实现均按默认处理 具体请参考阿里文档

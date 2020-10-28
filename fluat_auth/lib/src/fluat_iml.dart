@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'fluat_method.dart';
-import 'package:fluat_auth/fluat.dart';
+import 'package:fluat_auth/fluat_auth.dart';
 import 'dart:io';
 
 MethodChannel _channel = MethodChannel('fluat_auth')..setMethodCallHandler(_methodHandler);

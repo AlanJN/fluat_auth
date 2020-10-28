@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3cfe690f-efb2-430d-895e-f73a1f6ea73d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/example/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/fluat.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/fluat_auth.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/custom_config.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/custom_config.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/fluat_iml.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/fluat_iml.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
